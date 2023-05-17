@@ -1,7 +1,6 @@
 import polyfill from "../polyfill";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { useEffect, useRef, useState } from "react";
-import { trackEvent } from "../analytics";
 import { getDefaultAppState } from "../appState";
 import { ErrorDialog } from "../components/ErrorDialog";
 import { TopErrorBoundary } from "../components/TopErrorBoundary";
@@ -25,7 +24,9 @@ import {
   Excalidraw,
   defaultLang,
   LiveCollaborationTrigger,
-} from "../packages/excalidraw/index";
+  MainMenu,
+  WelcomeScreen
+} from "@excalidraw/excalidraw";
 import {
   AppState,
   LibraryItems,
@@ -96,6 +97,10 @@ const languageDetector = new LanguageDetector();
 languageDetector.init({
   languageUtils: {},
 });
+
+const welcomeScreenCenterLogoSrc =
+  "https://vconsol.com/wp-content/uploads/2020/07/vc-brand-logo.png";
+const welcomeScreenHeading = "Welcome Screen Heading!";
 
 const initializeScene = async (opts: {
   collabAPI: CollabAPI;
@@ -219,11 +224,11 @@ const initializeScene = async (opts: {
   } else if (scene) {
     return isExternalScene && jsonBackendMatch
       ? {
-          scene,
-          isExternalScene,
-          id: jsonBackendMatch[1],
-          key: jsonBackendMatch[2],
-        }
+        scene,
+        isExternalScene,
+        id: jsonBackendMatch[1],
+        key: jsonBackendMatch[2],
+      }
       : { scene, isExternalScene: false };
   }
   return { scene: null, isExternalScene: false };
@@ -248,14 +253,6 @@ const ExcalidrawWrapper = () => {
     initialStatePromiseRef.current.promise =
       resolvablePromise<ExcalidrawInitialDataState | null>();
   }
-
-  useEffect(() => {
-    trackEvent("load", "frame", getFrame());
-    // Delayed so that the app has a time to load the latest SW
-    setTimeout(() => {
-      trackEvent("load", "version", getVersion());
-    }, VERSION_TIMEOUT);
-  }, []);
 
   const [excalidrawAPI, excalidrawRefCallback] =
     useCallbackRefState<ExcalidrawImperativeAPI>();
@@ -580,18 +577,6 @@ const ExcalidrawWrapper = () => {
     }
   };
 
-  const renderCustomStats = (
-    elements: readonly NonDeletedExcalidrawElement[],
-    appState: UIAppState,
-  ) => {
-    return (
-      <CustomStats
-        setToast={(message) => excalidrawAPI!.setToast({ message })}
-        appState={appState}
-        elements={elements}
-      />
-    );
-  };
 
   const onLibraryChange = async (items: LibraryItems) => {
     if (!items.length) {
@@ -612,40 +597,19 @@ const ExcalidrawWrapper = () => {
       })}
     >
       <Excalidraw
-        ref={excalidrawRefCallback}
-        onChange={onChange}
-        initialData={initialStatePromiseRef.current.promise}
+        ref={excalidrawRefCallback as any}
+        onChange={onChange as any}
+        initialData={initialStatePromiseRef.current.promise as any}
         isCollaborating={isCollaborating}
         onPointerUpdate={collabAPI?.onPointerUpdate}
         UIOptions={{
           canvasActions: {
             toggleTheme: true,
-            export: {
-              onExportToBackend,
-              renderCustomUI: (elements, appState, files) => {
-                return (
-                  <ExportToExcalidrawPlus
-                    elements={elements}
-                    appState={appState}
-                    files={files}
-                    onError={(error) => {
-                      excalidrawAPI?.updateScene({
-                        appState: {
-                          errorMessage: error.message,
-                        },
-                      });
-                    }}
-                  />
-                );
-              },
-            },
           },
         }}
         langCode={langCode}
-        renderCustomStats={renderCustomStats}
         detectScroll={false}
         handleKeyboardGlobally={true}
-        onLibraryChange={onLibraryChange}
         autoFocus={true}
         theme={theme}
         renderTopRightUI={(isMobile) => {
@@ -660,12 +624,42 @@ const ExcalidrawWrapper = () => {
           );
         }}
       >
-        <AppMainMenu
+        {/* <AppMainMenu
           setCollabDialogShown={setCollabDialogShown}
           isCollaborating={isCollaborating}
-        />
-        <AppWelcomeScreen setCollabDialogShown={setCollabDialogShown} />
-        <AppFooter />
+        /> */}
+        {/* <AppWelcomeScreen setCollabDialogShown={setCollabDialogShown} />
+        <AppFooter /> */}
+
+        <WelcomeScreen>
+          <WelcomeScreen.Center>
+            <WelcomeScreen.Center.Logo>
+              <img
+                src={welcomeScreenCenterLogoSrc}
+                width={200}
+                alt="Vconsol Logo"
+                style={{ opacity: 0.4 }}
+              />
+            </WelcomeScreen.Center.Logo>
+            <WelcomeScreen.Center.Heading>
+              {welcomeScreenHeading}
+            </WelcomeScreen.Center.Heading>
+          </WelcomeScreen.Center>
+        </WelcomeScreen>
+
+        <MainMenu>
+          <MainMenu.DefaultItems.SaveAsImage />
+          <MainMenu.DefaultItems.LiveCollaborationTrigger
+            isCollaborating={isCollaborating}
+            onSelect={() => setCollabDialogShown(true)}
+          />
+          <MainMenu.DefaultItems.Help />
+          <MainMenu.DefaultItems.ClearCanvas />
+          <MainMenu.Separator />
+          <MainMenu.DefaultItems.ToggleTheme />
+          <MainMenu.DefaultItems.ChangeCanvasBackground />
+        </MainMenu>
+
         {isCollaborating && isOffline && (
           <div className="collab-offline-warning">
             {t("alerts.collabOfflineWarning")}

@@ -1,4 +1,15 @@
 .excalidraw {
+  --color-primary: #55ADC3;
+  --color-primary-darker: #3c94aa;
+  &.theme--dark {
+    --color-primary: #55ADC3;
+    --color-primary-darker: #3c94aa;
+  }
+  // only way to remove library button top right ui
+  .layer-ui__wrapper__top-right > label {
+    display: none;
+  }
+
   --color-primary-contrast-offset: #625ee0; // to offset Chubb illusion
 
   &.theme--dark {
