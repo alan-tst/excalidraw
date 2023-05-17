@@ -2,7 +2,7 @@ import clsx from "clsx";
 import oc from "open-color";
 import { useEffect, useRef, useState } from "react";
 import { useDevice } from "../components/App";
-import { exportToSvg } from "../packages/utils";
+import { exportToSvg } from "@excalidraw/excalidraw";
 import { LibraryItem } from "../types";
 import "./LibraryUnit.scss";
 import { CheckboxItem } from "./CheckboxItem";

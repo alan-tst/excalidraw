@@ -6,7 +6,7 @@ import { t } from "../i18n";
 import Trans from "./Trans";
 
 import { LibraryItems, LibraryItem, UIAppState } from "../types";
-import { exportToCanvas, exportToSvg } from "../packages/utils";
+import { exportToCanvas, exportToSvg } from "@excalidraw/excalidraw";
 import {
   EXPORT_DATA_TYPES,
   EXPORT_SOURCE,
@@ -156,7 +156,7 @@ const SingleLibraryItem = ({
           ...appState,
           viewBackgroundColor: OpenColor.white,
           exportBackground: true,
-        },
+        } as any,
         files: null,
       });
       node.innerHTML = svg.outerHTML;

@@ -4,7 +4,12 @@ import { canvasToBlob } from "../data/blob";
 import { NonDeletedExcalidrawElement } from "../element/types";
 import { t } from "../i18n";
 import { getSelectedElements, isSomeElementSelected } from "../scene";
-import { AppClassProperties, BinaryFiles, UIAppState } from "../types";
+import {
+  AppClassProperties,
+  BinaryFiles,
+  UIAppState,
+  BinaryFileData,
+} from "../types";
 import { Dialog } from "./Dialog";
 import { clipboard } from "./icons";
 import Stack from "./Stack";
@@ -17,7 +22,7 @@ import {
 } from "../constants";
 import { nativeFileSystemSupported } from "../data/filesystem";
 import { ActionManager } from "../actions/manager";
-import { exportToCanvas } from "../packages/utils";
+import { exportToCanvas } from "@excalidraw/excalidraw";
 
 import "./ExportDialog.scss";
 
@@ -102,7 +107,7 @@ const ImageExportModal = ({
       files,
       exportPadding: DEFAULT_EXPORT_PADDING,
       maxWidthOrHeight: maxWidth,
-    })
+    } as any)
       .then((canvas) => {
         setRenderError(null);
         // if converting to blob fails, there's some problem that will

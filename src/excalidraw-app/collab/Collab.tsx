@@ -11,7 +11,7 @@ import {
 import {
   getSceneVersion,
   restoreElements,
-} from "../../packages/excalidraw/index";
+} from "@excalidraw/excalidraw";
 import { Collaborator, Gesture } from "../../types";
 import {
   preventUnload,
