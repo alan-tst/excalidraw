@@ -13,7 +13,6 @@ import { ToolButton } from "../../components/ToolButton";
 import "./RoomDialog.scss";
 import Stack from "../../components/Stack";
 import { AppState } from "../../types";
-import { trackEvent } from "../../analytics";
 import { getFrame } from "../../utils";
 import DialogActionButton from "../../components/DialogActionButton";
 import { useI18n } from "../../i18n";
@@ -95,7 +94,6 @@ const RoomDialog = ({
               <DialogActionButton
                 label={t("roomDialog.button_startSession")}
                 onClick={() => {
-                  trackEvent("share", "room creation", `ui (${getFrame()})`);
                   onRoomCreate();
                 }}
               >
@@ -163,7 +161,6 @@ const RoomDialog = ({
                 actionType="danger"
                 label={t("roomDialog.button_stopSession")}
                 onClick={() => {
-                  trackEvent("share", "room closed");
                   onRoomDestroy();
                 }}
               >

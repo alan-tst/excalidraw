@@ -31,7 +31,6 @@ import { isPointHittingElementBoundingBox } from "./collision";
 import { getElementAbsoluteCoords } from "./";
 
 import "./Hyperlink.scss";
-import { trackEvent } from "../analytics";
 import { useExcalidrawAppState } from "../components/App";
 
 const CONTAINER_WIDTH = 320;
@@ -70,10 +69,6 @@ export const Hyperlink = ({
     }
 
     const link = normalizeLink(inputRef.current.value);
-
-    if (!element.link && link) {
-      trackEvent("hyperlink", "create");
-    }
 
     mutateElement(element, { link });
     setAppState({ showHyperlinkPopup: "info" });
@@ -114,7 +109,6 @@ export const Hyperlink = ({
   }, [appState, element, isEditing, setAppState]);
 
   const handleRemove = useCallback(() => {
-    trackEvent("hyperlink", "delete");
     mutateElement(element, { link: null });
     if (isEditing) {
       inputRef.current!.value = "";
@@ -123,7 +117,6 @@ export const Hyperlink = ({
   }, [setAppState, element, isEditing]);
 
   const onEdit = () => {
-    trackEvent("hyperlink", "edit", "popup-ui");
     setAppState({ showHyperlinkPopup: "editor" });
   };
   const { x, y } = getCoordsForPopover(element, appState);
@@ -414,7 +407,6 @@ const renderTooltip = (
     },
     "top",
   );
-  trackEvent("hyperlink", "tooltip", "link-icon");
 
   IS_HYPERLINK_TOOLTIP_VISIBLE = true;
 };

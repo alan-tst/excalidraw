@@ -11,7 +11,6 @@ import { Card } from "./Card";
 
 import "./ExportDialog.scss";
 import { nativeFileSystemSupported } from "../data/filesystem";
-import { trackEvent } from "../analytics";
 import { ActionManager } from "../actions/manager";
 import { getFrame } from "../utils";
 
@@ -74,7 +73,6 @@ const JSONExportModal = ({
               showAriaLabel={true}
               onClick={() => {
                 onExportToBackend(elements, appState, files, canvas);
-                trackEvent("export", "link", `ui (${getFrame()})`);
               }}
             />
           </Card>

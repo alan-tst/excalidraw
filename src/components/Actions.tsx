@@ -24,7 +24,6 @@ import {
 import Stack from "./Stack";
 import { ToolButton } from "./ToolButton";
 import { hasStrokeColor } from "../scene/comparisons";
-import { trackEvent } from "../analytics";
 import { hasBoundTextElement } from "../element/typeChecks";
 import clsx from "clsx";
 import { actionToggleZenMode } from "../actions";
@@ -251,9 +250,6 @@ export const ShapesSwitcher = ({
             }
           }}
           onChange={({ pointerType }) => {
-            if (appState.activeTool.type !== value) {
-              trackEvent("toolbar", value, "ui");
-            }
             const nextActiveTool = updateActiveTool(appState, {
               type: value,
             });

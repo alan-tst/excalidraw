@@ -1,5 +1,4 @@
 import { AppState } from "../../src/types";
-import { trackEvent } from "../analytics";
 import { ButtonIconSelect } from "../components/ButtonIconSelect";
 import { ColorPicker } from "../components/ColorPicker";
 import { IconPicker } from "../components/IconPicker";
@@ -297,11 +296,6 @@ export const actionChangeFillStyle = register({
   name: "changeFillStyle",
   trackEvent: false,
   perform: (elements, appState, value, app) => {
-    trackEvent(
-      "element",
-      "changeFillStyle",
-      `${value} (${app.device.isMobile ? "mobile" : "desktop"})`,
-    );
     return {
       elements: changeProperty(elements, appState, (el) =>
         newElementWith(el, {

@@ -8,10 +8,7 @@ import {
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
 } from "../../element/types";
-import {
-  getSceneVersion,
-  restoreElements,
-} from "@excalidraw/excalidraw";
+import { getSceneVersion, restoreElements } from "@excalidraw/excalidraw";
 import { Collaborator, Gesture } from "../../types";
 import {
   preventUnload,

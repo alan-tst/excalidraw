@@ -40,7 +40,6 @@ import { createRedoAction, createUndoAction } from "../actions/actionHistory";
 import { ActionManager } from "../actions/manager";
 import { actions } from "../actions/register";
 import { ActionResult } from "../actions/types";
-import { trackEvent } from "../analytics";
 import {
   getDefaultAppState,
   isEraserActive,
@@ -696,7 +695,6 @@ class App extends React.Component<AppProps, AppState> {
     type: keyof typeof EXPORT_IMAGE_TYPES,
     elements: readonly NonDeletedExcalidrawElement[],
   ) => {
-    trackEvent("export", type, "ui");
     const fileHandle = await exportCanvas(
       type,
       elements,
@@ -1854,13 +1852,6 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   toggleLock = (source: "keyboard" | "ui" = "ui") => {
-    if (!this.state.activeTool.locked) {
-      trackEvent(
-        "toolbar",
-        "toggleLock",
-        `${source} (${this.device.isMobile ? "mobile" : "desktop"})`,
-      );
-    }
     this.setState((prevState) => {
       return {
         activeTool: {
@@ -2282,13 +2273,6 @@ class App extends React.Component<AppProps, AppState> {
       ) {
         const shape = findShapeByKey(event.key);
         if (shape) {
-          if (this.state.activeTool.type !== shape) {
-            trackEvent(
-              "toolbar",
-              shape,
-              `keyboard (${this.device.isMobile ? "mobile" : "desktop"})`,
-            );
-          }
           this.setActiveTool({ type: shape });
           event.stopPropagation();
         } else if (event.key === KEYS.Q) {
@@ -6222,9 +6206,6 @@ class App extends React.Component<AppProps, AppState> {
       container.getBoundingClientRect();
     const left = event.clientX - offsetLeft;
     const top = event.clientY - offsetTop;
-
-    trackEvent("contextMenu", "openContextMenu", type);
-
     this.setState(
       {
         ...(element && !this.state.selectedElementIds[element.id]

@@ -12,7 +12,6 @@ import {
   UIAppState,
 } from "../types";
 import LibraryMenuItems from "./LibraryMenuItems";
-import { trackEvent } from "../analytics";
 import { atom, useAtom } from "jotai";
 import { jotaiScope } from "../jotai";
 import Spinner from "./Spinner";
@@ -61,7 +60,6 @@ export const LibraryMenuContent = ({
 
   const addToLibrary = useCallback(
     async (elements: LibraryItem["elements"], libraryItems: LibraryItems) => {
-      trackEvent("element", "addToLibrary", "ui");
       if (elements.some((element) => element.type === "image")) {
         return setAppState({
           errorMessage: "Support for adding images to the library coming soon!",

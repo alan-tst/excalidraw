@@ -13,7 +13,6 @@ import {
   WS_SCENE_EVENT_TYPES,
 } from "../app_constants";
 import { UserIdleState } from "../../types";
-import { trackEvent } from "../../analytics";
 import throttle from "lodash.throttle";
 import { newElementWith } from "../../element/mutateElement";
 import { BroadcastedExcalidrawElement } from "./reconciliation";
@@ -41,7 +40,6 @@ class Portal {
     this.socket.on("init-room", () => {
       if (this.socket) {
         this.socket.emit("join-room", this.roomId);
-        trackEvent("share", "room joined");
       }
     });
     this.socket.on("new-user", async (_socketId: string) => {
