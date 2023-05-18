@@ -6622,17 +6622,17 @@ class App extends React.Component<AppProps, AppState> {
 // TEST HOOKS
 // -----------------------------------------------------------------------------
 
-declare global {
-  interface Window {
-    h: {
-      elements: readonly ExcalidrawElement[];
-      state: AppState;
-      setState: React.Component<any, AppState>["setState"];
-      app: InstanceType<typeof App>;
-      history: History;
-    };
-  }
-}
+// declare global {
+//   interface Window {
+//     h: {
+//       elements: readonly ExcalidrawElement[];
+//       state: AppState;
+//       setState: React.Component<any, AppState>["setState"];
+//       app: InstanceType<typeof App>;
+//       history: History;
+//     };
+//   }
+// }
 
 if (
   process.env.NODE_ENV === ENV.TEST ||
