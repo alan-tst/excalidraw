@@ -19,6 +19,9 @@ import { BroadcastedExcalidrawElement } from "./reconciliation";
 import { encryptData } from "../../data/encryption";
 import { PRECEDING_ELEMENT_KEY } from "../../constants";
 
+import InterCommunicationService from "../../services/InterCommunicationService";
+import type { InterCommunication } from "../../services/InterCommunicationService";
+
 class Portal {
   collab: TCollabClass;
   socket: SocketIOClient.Socket | null = null;
@@ -27,8 +30,19 @@ class Portal {
   roomKey: string | null = null;
   broadcastedElementVersions: Map<string, number> = new Map();
 
+  interCommunicationRef: InterCommunication | any = null;
+  targetOrigin: string = "http://localhost:8080";
+
   constructor(collab: TCollabClass) {
     this.collab = collab;
+    this.interCommunicationRef = new InterCommunicationService(
+      this.targetOrigin,
+      this._handleMessageReceived,
+    );
+  }
+
+  registerEvents() {
+    this.interCommunicationRef?.initializeMessageListener();
   }
 
   open(socket: SocketIOClient.Socket, id: string, key: string) {
@@ -67,6 +81,8 @@ class Portal {
     this.roomKey = null;
     this.socketInitialized = false;
     this.broadcastedElementVersions = new Map();
+
+    this.interCommunicationRef?.disconnect();
   }
 
   isOpen() {
@@ -93,8 +109,28 @@ class Portal {
         encryptedBuffer,
         iv,
       );
+
+      this.interCommunicationRef?.sendMessage({
+        type: "broadcast",
+        data: {
+          type: volatile ? WS_EVENTS.SERVER_VOLATILE : WS_EVENTS.SERVER,
+          roomId: this.roomId,
+          encryptedBuffer,
+          iv,
+        },
+      });
     }
   }
+
+  _handleMessageReceived = (event: any) => {
+    console.log("handleMessageReceived", event);
+    if (event.action === "openCollab") {
+      this.collab.onDialogShow();
+    }
+    if (event.action === "startCollab") {
+      this.collab.startCollaboration(null);
+    }
+  };
 
   queueFileUpload = throttle(async () => {
     try {

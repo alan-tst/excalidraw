@@ -95,6 +95,7 @@ export interface CollabAPI {
 
 interface PublicProps {
   excalidrawAPI: ExcalidrawImperativeAPI;
+  onDialogShow: () => void;
 }
 
 type Props = PublicProps & { modalIsShown: boolean };
@@ -105,10 +106,12 @@ class Collab extends PureComponent<Props, CollabState> {
   excalidrawAPI: Props["excalidrawAPI"];
   activeIntervalId: number | null;
   idleTimeoutId: number | null;
+  onDialogShow: Props["onDialogShow"];
 
   private socketInitializationTimer?: number;
   private lastBroadcastedOrReceivedSceneVersion: number = -1;
   private collaborators = new Map<string, Collaborator>();
+  private firstTimeSavedData: ImportedDataState | null = null;
 
   constructor(props: Props) {
     super(props);
@@ -144,6 +147,7 @@ class Collab extends PureComponent<Props, CollabState> {
       },
     });
     this.excalidrawAPI = props.excalidrawAPI;
+    this.onDialogShow = props.onDialogShow;
     this.activeIntervalId = null;
     this.idleTimeoutId = null;
   }
@@ -153,6 +157,8 @@ class Collab extends PureComponent<Props, CollabState> {
     window.addEventListener("online", this.onOfflineStatusToggle);
     window.addEventListener("offline", this.onOfflineStatusToggle);
     window.addEventListener(EVENT.UNLOAD, this.onUnload);
+
+    this.portal.registerEvents();
 
     const collabAPI: CollabAPI = {
       isCollaborating: this.isCollaborating,
@@ -237,17 +243,21 @@ class Collab extends PureComponent<Props, CollabState> {
     syncableElements: readonly SyncableExcalidrawElement[],
   ) => {
     try {
-      const savedData = await saveToFirebase(
-        this.portal,
-        syncableElements,
-        this.excalidrawAPI.getAppState(),
-      );
+      // const savedData = await saveToFirebase(
+      //   this.portal,
+      //   syncableElements,
+      //   this.excalidrawAPI.getAppState(),
+      // );
+      // if (this.isCollaborating() && savedData && savedData.reconciledElements) {
+      //   this.handleRemoteSceneUpdate(
+      //     this.reconcileElements(savedData.reconciledElements),
+      //   );
+      // }
 
-      if (this.isCollaborating() && savedData && savedData.reconciledElements) {
-        this.handleRemoteSceneUpdate(
-          this.reconcileElements(savedData.reconciledElements),
-        );
-      }
+      this.portal.socket?.emit("save-data", this.portal.roomId, {
+        elements: syncableElements,
+        appState: this.excalidrawAPI.getAppState(),
+      });
     } catch (error: any) {
       this.setState({
         // firestore doesn't return a specific error code when size exceeded
@@ -536,6 +546,16 @@ class Collab extends PureComponent<Props, CollabState> {
 
     this.portal.socket.on("first-in-room", async () => {
       if (this.portal.socket) {
+        this.portal.socket.on("load-data", async (data: any) => {
+          console.log("loading data", data);
+
+          const elements = data.elements;
+
+          this.excalidrawAPI.updateScene({
+            elements,
+          });
+        });
+
         this.portal.socket.off("first-in-room");
       }
       const sceneData = await this.initializeRoom({
@@ -573,28 +593,29 @@ class Collab extends PureComponent<Props, CollabState> {
     if (fetchScene && roomLinkData && this.portal.socket) {
       this.excalidrawAPI.resetScene();
 
-      try {
-        const elements = await loadFromFirebase(
-          roomLinkData.roomId,
-          roomLinkData.roomKey,
-          this.portal.socket,
-        );
-        if (elements) {
-          this.setLastBroadcastedOrReceivedSceneVersion(
-            getSceneVersion(elements),
-          );
+      // try {
+      //   const elements = await loadFromFirebase(
+      //     roomLinkData.roomId,
+      //     roomLinkData.roomKey,
+      //     this.portal.socket,
+      //   );
 
-          return {
-            elements,
-            scrollToContent: true,
-          };
-        }
-      } catch (error: any) {
-        // log the error and move on. other peers will sync us the scene.
-        console.error(error);
-      } finally {
-        this.portal.socketInitialized = true;
-      }
+      //   if (elements) {
+      //     this.setLastBroadcastedOrReceivedSceneVersion(
+      //       getSceneVersion(elements),
+      //     );
+
+      //     return {
+      //       elements,
+      //       scrollToContent: true,
+      //     };
+      //   }
+      // } catch (error: any) {
+      //   // log the error and move on. other peers will sync us the scene.
+      //   console.error(error);
+      // } finally {
+      //   this.portal.socketInitialized = true;
+      // }
     } else {
       this.portal.socketInitialized = true;
     }

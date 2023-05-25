@@ -25,7 +25,7 @@ import {
   defaultLang,
   LiveCollaborationTrigger,
   MainMenu,
-  WelcomeScreen
+  WelcomeScreen,
 } from "@excalidraw/excalidraw";
 import {
   AppState,
@@ -224,11 +224,11 @@ const initializeScene = async (opts: {
   } else if (scene) {
     return isExternalScene && jsonBackendMatch
       ? {
-        scene,
-        isExternalScene,
-        id: jsonBackendMatch[1],
-        key: jsonBackendMatch[2],
-      }
+          scene,
+          isExternalScene,
+          id: jsonBackendMatch[1],
+          key: jsonBackendMatch[2],
+        }
       : { scene, isExternalScene: false };
   }
   return { scene: null, isExternalScene: false };
@@ -577,7 +577,6 @@ const ExcalidrawWrapper = () => {
     }
   };
 
-
   const onLibraryChange = async (items: LibraryItems) => {
     if (!items.length) {
       localStorage.removeItem(STORAGE_KEYS.LOCAL_STORAGE_LIBRARY);
@@ -588,6 +587,10 @@ const ExcalidrawWrapper = () => {
   };
 
   const isOffline = useAtomValue(isOfflineAtom);
+
+  const onDialog = () => {
+    setCollabDialogShown(true);
+  };
 
   return (
     <div
@@ -666,7 +669,9 @@ const ExcalidrawWrapper = () => {
           </div>
         )}
       </Excalidraw>
-      {excalidrawAPI && <Collab excalidrawAPI={excalidrawAPI} />}
+      {excalidrawAPI && (
+        <Collab excalidrawAPI={excalidrawAPI} onDialogShow={onDialog} />
+      )}
       {errorMessage && (
         <ErrorDialog onClose={() => setErrorMessage("")}>
           {errorMessage}
