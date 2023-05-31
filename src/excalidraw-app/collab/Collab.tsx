@@ -546,16 +546,6 @@ class Collab extends PureComponent<Props, CollabState> {
 
     this.portal.socket.on("first-in-room", async () => {
       if (this.portal.socket) {
-        this.portal.socket.on("load-data", async (data: any) => {
-          console.log("loading data", data);
-
-          const elements = data.elements;
-
-          this.excalidrawAPI.updateScene({
-            elements,
-          });
-        });
-
         this.portal.socket.off("first-in-room");
       }
       const sceneData = await this.initializeRoom({
@@ -563,6 +553,14 @@ class Collab extends PureComponent<Props, CollabState> {
         roomLinkData: existingRoomLinkData,
       });
       scenePromise.resolve(sceneData);
+    });
+
+    this.portal.socket.on("load-data", async (data: any) => {
+      const elements = data.elements;
+
+      this.excalidrawAPI.updateScene({
+        elements,
+      });
     });
 
     this.initializeIdleDetector();
